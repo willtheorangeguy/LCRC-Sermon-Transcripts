@@ -26,16 +26,13 @@ years = [
 
 def main():
     """Main function to run the scripts in order."""
-    if len(sys.argv) != 2:
-        print("Usage: python main.py <year>")
-        sys.exit(1)
-    year = sys.argv[1]
-    for script in scripts:
-        print(f"Running {script} for year {year}...")
-        result = subprocess.run([sys.executable, script, year])
-        if result.returncode != 0:
-            print(f"Error: {script} failed with exit code {result.returncode}")
-            sys.exit(result.returncode)
+    for year in years:
+        for script in scripts:
+            print(f"Running {script} for year {year}...")
+            result = subprocess.run([sys.executable, script, year])
+            if result.returncode != 0:
+                print(f"Error: {script} failed with exit code {result.returncode}")
+                sys.exit(result.returncode)
     print("All scripts completed successfully.")
 
 

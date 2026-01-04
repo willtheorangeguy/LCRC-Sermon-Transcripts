@@ -23,8 +23,8 @@ def transcribe_audio(file_path):
 
     # Read already transcribed files from log
     if os.path.exists(log_file):
-        with open(log_file, "r", encoding="utf-8") as log_file:
-            transcribed = set(line.strip() for line in log_file if line.strip())
+        with open(log_file, "r", encoding="utf-8") as f:
+            transcribed = set(line.strip() for line in f if line.strip())
     else:
         transcribed = set()
 
@@ -38,9 +38,9 @@ def transcribe_audio(file_path):
             success = transcribe(full_path)
             if success:
                 # Append to log file
-                with open(log_file, "a", encoding="utf-8") as log_file:
-                    log_file.write(file + "\n")
-                    log_file.flush()
+                with open(log_file, "a", encoding="utf-8") as f:
+                    f.write(file + "\n")
+                    f.flush()
 
 def transcribe(file_path):
 

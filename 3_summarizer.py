@@ -116,6 +116,7 @@ def summarize_transcripts(file_path, model="llama3.1:8b"):
         if (
             file.endswith(".txt")
             and not file.endswith("_summary.txt")
+            and not file.endswith("_corrected.txt")
             and file not in processed_files
         ):
             print(f"Processing {file}...")

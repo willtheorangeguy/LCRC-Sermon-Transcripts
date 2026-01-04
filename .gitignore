@@ -1,0 +1,68 @@
+# Ignore log files
+*.log
+
+# Ignore media files
+*.mp3
+*.mp4
+*.mkv
+*.avi
+*.wav
+*.flac
+*.mov
+*.wmv
+*.aac
+*.ogg
+*.webm
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.bmp
+*.tiff
+*.svg
+
+# Ignore Python cache and environment files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+.venv
+venv/
+env/
+ENV/
+*.egg-info/
+*.egg
+constants.py
+
+# Ignore VS Code settings
+.vscode/
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
+
+# Ignore output and temporary files
+*.out
+*.tmp
+*.bak
+
+# Ignore model and data files
+*.h5
+*.hdf5
+*.ckpt
+*.pth
+*.pt
+*.pb
+*.npz
+*.npy
+*.csv
+*.tsv
+*.xlsx
+*.xls
+*.pickle
+*.joblib
+*.tar.gz
+*.zip
+*.rar
+*.7z
