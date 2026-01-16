@@ -44,7 +44,7 @@
 $ git clone https://github.com/willtheorangeguy/LCRC-Sermon-Transcripts.git
 
 # Go into the repository
-$ cd WAN-Transcripts
+$ cd LCRC-Sermon-Transcripts
 
 # Install Dependencies + Run
 $ pip install -r requirements.txt
