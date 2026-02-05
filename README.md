@@ -102,4 +102,4 @@ This software uses the following open source packages, projects, services or web
 
 ## License
 
-The code in this repository is licensed under the [MIT License](https://mit-license.org/) - see the [`LICENSE`](LICENSE.md) file for details. The transcription of sermons contains spoken words which are copyright and the individual perspective of their respective speaker. This repository is in no way affiliated with OpenAI, YouTube, Google, or Hope Community Church.
+The code in this repository is licensed under the [MIT License](https://mit-license.org/) - see the [`LICENSE`](LICENSE.md) file for details. The transcription of sermons contains spoken words which are copyright and the individual perspective of their respective speaker. This repository is in no way affiliated with OpenAI, YouTube, Google, or Ladner Christian Reformed Church.
