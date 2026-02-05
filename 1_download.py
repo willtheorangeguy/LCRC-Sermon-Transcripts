@@ -24,7 +24,9 @@ def download_playlist(channel_url):
             }
         ],
         "keepvideo": False,
-        "remote_components": "ejs:github"
+        "remote_components": "ejs:github",
+        'concurrent-fragments': True,
+        'no-mtime': True
     }
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         ydl.download([channel_url])
