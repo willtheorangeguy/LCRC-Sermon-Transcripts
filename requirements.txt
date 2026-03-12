@@ -1,4 +1,3 @@
-# Core dependencies for WAN Show Archive scripts
 yt-dlp
 requests
 openai-whisper
