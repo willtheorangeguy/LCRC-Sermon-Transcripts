@@ -4,9 +4,10 @@ import json
 import re
 from datetime import datetime
 from urllib.error import HTTPError, URLError
-from urllib.parse import parse_qs, urlencode, urlparse
+from urllib.parse import urlencode, urlparse
 from urllib.request import urlopen
 from constants import YOUTUBE_API_KEY
+from mutagen import MutagenError
 from mutagen.easyid3 import EasyID3
 from mutagen.id3 import ID3, TDRC, TRCK
 
@@ -24,6 +25,19 @@ def normalize(text):
     text = re.sub(r"[^\w\s]", "", text)  # remove punctuation
     text = re.sub(r"\s+", " ", text).strip() # collapse whitespace
     return text
+
+def matching_title_key(filename, title_lookup):
+    """Return the best matching title map key for a filename."""
+    candidates = [normalize(filename)]
+
+    if "_" in filename:
+        candidates.append(normalize(filename.replace("_", ":")))
+
+    for candidate in candidates:
+        if candidate in title_lookup:
+            return candidate
+
+    return None
 
 def extract_channel_reference(channel_url):
     """Extract channel reference type and value from a YouTube channel URL."""
@@ -155,10 +169,34 @@ def fetch_playlist_data(channel_url):
             break
     return title_map
 
+def apply_standard_tags(filepath, year, tracknumber=None):
+    """Write the common album metadata to an MP3 file."""
+    audio = EasyID3(filepath)
+    audio["artist"] = PODCAST_NAME
+    audio["albumartist"] = PODCAST_NAME
+    audio["album"] = year
+    if tracknumber is not None:
+        audio["tracknumber"] = str(tracknumber)
+    audio.save(filepath)
+
+    id3 = ID3(filepath)
+
+    # Album date = Jan 1 of year
+    id3.delall("TDRC")
+    id3.add(TDRC(encoding=3, text=f"{year}-01-01"))
+
+    if tracknumber is not None:
+        # Track number
+        id3.delall("TRCK")
+        id3.add(TRCK(encoding=3, text=str(tracknumber)))
+
+    id3.save(filepath)
+
 def process_year_folder(folder_path, year, title_map):
     """Process all MP3 files in the given folder,
     matching them to playlist data and updating ID3 tags."""
-    files_with_dates = []
+    matched_files = []
+    unmatched_files = []
 
     # Path to the log file
     log_path = os.path.join(folder_path, LOG_FILENAME)
@@ -174,22 +212,22 @@ def process_year_folder(folder_path, year, title_map):
     for file in os.listdir(folder_path):
         if not file.lower().endswith(".mp3"):
             continue
-        # Normalize filename for matching
-        norm_name = normalize(file)
-        # Check for matching title in playlist data
-        if norm_name not in title_map:
-            print(f"Skipping (no match): {file}")
-            continue
+        # Normalize filename for matching, with an underscore fallback for colon titles
+        norm_name = matching_title_key(file, title_map)
         # Store full path and upload date for sorting
         full_path = os.path.join(folder_path, file)
-        files_with_dates.append((full_path, title_map[norm_name]))
+        if norm_name is None:
+            unmatched_files.append(full_path)
+            continue
+
+        matched_files.append((full_path, title_map[norm_name]))
 
     # Sort by upload date
-    files_with_dates.sort(key=lambda x: x[1])
+    matched_files.sort(key=lambda x: x[1])
 
-    # Update ID3 tags in sorted order
     with open(log_path, "a", encoding="utf-8") as log_file:
-        for idx, (filepath, date) in enumerate(files_with_dates, start=1):
+        # Update matched files first so track numbers follow the playlist order.
+        for idx, (filepath, _date) in enumerate(matched_files, start=1):
             filename = os.path.basename(filepath)
 
             if filename in tagged_files:
@@ -197,29 +235,33 @@ def process_year_folder(folder_path, year, title_map):
                 continue
 
             try:
-                audio = EasyID3(filepath)
-                audio["artist"] = PODCAST_NAME
-                audio["albumartist"] = PODCAST_NAME
-                audio["album"] = year
-                audio["tracknumber"] = str(idx)
-                audio.save(filepath)
-                id3 = ID3(filepath)
-
-                # Album date = Jan 1 of year
-                id3.delall("TDRC")
-                id3.add(TDRC(encoding=3, text=f"{year}-01-01"))
-
-                # Track number
-                id3.delall("TRCK")
-                id3.add(TRCK(encoding=3, text=str(idx)))
-                id3.save(filepath)
+                apply_standard_tags(filepath, year, idx)
 
                 log_file.write(filename + "\n")
                 log_file.flush()
                 tagged_files.add(filename)
 
                 print(f"Updated: {filename} → Track {idx}")
-            except Exception as e:
+            except (OSError, MutagenError) as e:
+                print(f"Error with {filepath}: {e}")
+
+        # Write the base album metadata even when there is no playlist match.
+        for filepath in unmatched_files:
+            filename = os.path.basename(filepath)
+
+            if filename in tagged_files:
+                print(f"Skipping (already tagged): {filename}")
+                continue
+
+            try:
+                apply_standard_tags(filepath, year)
+
+                log_file.write(filename + "\n")
+                log_file.flush()
+                tagged_files.add(filename)
+
+                print(f"Updated: {filename} → base album metadata only")
+            except (OSError, MutagenError) as e:
                 print(f"Error with {filepath}: {e}")
 
 if __name__ == "__main__":
@@ -227,10 +269,10 @@ if __name__ == "__main__":
         print("Usage: python 2_tagger.py <year>")
         sys.exit(1)
     else:
-        year = sys.argv[1]
-        channel_url = "https://www.youtube.com/@LadnerChristianReformedChurch"
+        album_year = sys.argv[1]
+        youtube_channel_url = "https://www.youtube.com/@LadnerChristianReformedChurch"
 
         print("Fetching channel metadata via YouTube API...")
-        title_map = fetch_playlist_data(channel_url)
-        print(f"Processing year: {year}")
-        process_year_folder(year, year, title_map)
+        playlist_title_map = fetch_playlist_data(youtube_channel_url)
+        print(f"Processing year: {album_year}")
+        process_year_folder(album_year, album_year, playlist_title_map)
