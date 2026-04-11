@@ -5,3 +5,4 @@ transformers
 ollama
 language-tool-python
 torch
+mutagen

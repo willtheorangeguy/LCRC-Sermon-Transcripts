@@ -9,9 +9,10 @@ import subprocess
 # List of numbered scripts in order
 scripts = [
     "1_download.py",
-    "2_transcriber.py",
-    "3_summarizer.py",
-    "4_cleanup.py"
+    "2_tagger.py",
+    "3_transcriber.py",
+    "4_summarizer.py",
+    "5_cleanup.py"
 ]
 
 # List of years
@@ -35,7 +36,6 @@ def main():
                 print(f"Error: {script} failed with exit code {result.returncode}")
                 sys.exit(result.returncode)
     print("All scripts completed successfully.")
-
 
 if __name__ == "__main__":
     main()
