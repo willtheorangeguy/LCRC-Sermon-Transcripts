@@ -171,6 +171,8 @@ def fetch_playlist_data(channel_url):
 
 def apply_standard_tags(filepath, year, tracknumber=None):
     """Write the common album metadata to an MP3 file."""
+    filename = os.path.basename(filepath)
+    
     audio = EasyID3(filepath)
     audio["artist"] = PODCAST_NAME
     audio["albumartist"] = PODCAST_NAME
