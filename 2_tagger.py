@@ -175,6 +175,7 @@ def apply_standard_tags(filepath, year, tracknumber=None):
     audio["artist"] = PODCAST_NAME
     audio["albumartist"] = PODCAST_NAME
     audio["album"] = year
+    audio["title"] = os.path.splitext(filename)[0]
     if tracknumber is not None:
         audio["tracknumber"] = str(tracknumber)
     audio.save(filepath)
