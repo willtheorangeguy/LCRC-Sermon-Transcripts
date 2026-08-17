@@ -66,3 +66,5 @@ Thumbs.db
 *.zip
 *.rar
 *.7z
+.bandit/
+.recall/
